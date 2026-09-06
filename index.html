@@ -140,6 +140,66 @@
 </head>
 
 <body>
+<div id="loginScreen" style="
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#f4f6f8;
+">
+    <div style="
+        background:white;
+        padding:30px;
+        border-radius:12px;
+        width:90%;
+        max-width:400px;
+        box-shadow:0 2px 15px rgba(0,0,0,0.1);
+    ">
+        <h2>🔐 Analytics Login</h2>
+        <p>Authorized users only.</p>
+
+        <input
+            id="email"
+            type="email"
+            placeholder="Email"
+            style="width:100%;padding:12px;margin:8px 0;"
+        >
+
+        <input
+            id="password"
+            type="password"
+            placeholder="Password"
+            style="width:100%;padding:12px;margin:8px 0;"
+        >
+
+        <button
+            onclick="login()"
+            style="width:100%;padding:12px;margin-top:10px;"
+        >
+            Login
+        </button>
+
+        <p id="loginError" style="color:red;"></p>
+    </div>
+</div>
+
+<div id="dashboard" style="display:none;"> 
+
+    <body>
+
+<div id="loginScreen" style="
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#f4f6f8;
+">
+
+    ...
+    
+</div>
+
+<div id="dashboard" style="display:none;">
 
 <header>
     <h1>📊 Portfolio Analytics</h1>
@@ -272,7 +332,7 @@
 
 </div>
 
-
+</div>
 <script type="module">
 
     import {
@@ -317,8 +377,41 @@
     const app = initializeApp(firebaseConfig);
 
     const db = getFirestore(app);
+    
+    const auth = getAuth(app);
+    
+    window.login = async function () {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const errorBox = document.getElementById("loginError");
 
+    errorBox.textContent = "";
 
+    if (!email || !password) {
+        errorBox.textContent = "Please enter your email and password.";
+        return;
+    }
+
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        console.error("Login failed:", error);
+        errorBox.textContent = "Invalid email or password.";
+    }
+};
+    onAuthStateChanged(auth, (user) => {
+    const loginScreen = document.getElementById("loginScreen");
+    const dashboard = document.getElementById("dashboard");
+
+    if (user) {
+        loginScreen.style.display = "none";
+        dashboard.style.display = "block";
+        loadAnalytics();
+    } else {
+        loginScreen.style.display = "flex";
+        dashboard.style.display = "none";
+    }
+});
     // ============================
     // LOAD ANALYTICS
     // ============================
@@ -681,8 +774,44 @@
         loadAnalytics;
 
 
-    loadAnalytics();
 
+// ============================
+// AUTHENTICATION
+// ============================
+
+window.login = async function () {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const errorBox = document.getElementById("loginError");
+
+    errorBox.textContent = "";
+
+    if (!email || !password) {
+        errorBox.textContent = "Please enter your email and password.";
+        return;
+    }
+
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        console.error("Login failed:", error);
+        errorBox.textContent = "Invalid email or password.";
+    }
+};
+
+onAuthStateChanged(auth, (user) => {
+    const loginScreen = document.getElementById("loginScreen");
+    const dashboard = document.getElementById("dashboard");
+
+    if (user) {
+        loginScreen.style.display = "none";
+        dashboard.style.display = "block";
+        loadAnalytics();
+    } else {
+        loginScreen.style.display = "flex";
+        dashboard.style.display = "none";
+    }
+});
 </script>
 
 </body>
